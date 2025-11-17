@@ -31,13 +31,15 @@ Sistema completo de gerenciamento de obras de construção com **interface moder
 - ✅ Validação automática de datas e valores
 - ✅ DataTable interativa com edição inline
 
-### 📦 Controle de Insumos
-- ✅ Cadastro de materiais com fornecedor
-- ✅ Controle de estoque com entrada e saída
-- ✅ **Alertas visuais** para estoque baixo (< 10 unidades)
-- ✅ Cálculo automático de valor total em estoque
-- ✅ Rastreamento por unidade de medida
-- ✅ Histórico de movimentações
+### 📦 Controle de Insumos (SQLITE + PAGINAÇÃO)
+- ✅ **Banco de dados SQLite** para performance com grandes volumes
+- ✅ **Paginação inteligente** - exibe 50 insumos por página
+- ✅ **4.984 insumos importados** do SINAPI (materiais e serviços de construção)
+- ✅ **Busca rápida** por código, classificação ou descrição
+- ✅ Cadastro com: Código, Classificação, Descrição, Unidade
+- ✅ Campos opcionais: Preço, Fornecedor, Estoque
+- ✅ **Índices otimizados** para buscas instantâneas
+- ✅ Navegação por páginas com indicador visual
 
 ### 👷 Gestão de Funcionários
 - ✅ Cadastro com **validação de CPF** (algoritmo oficial)
@@ -78,8 +80,9 @@ Sistema completo de gerenciamento de obras de construção com **interface moder
 |------------|--------|-----|
 | **Python** | 3.13.5 | Linguagem principal |
 | **Flet** | 0.28.3 | Framework GUI (Desktop/Web/Mobile) |
+| **SQLite** | 3.x | Banco de dados embutido para Insumos |
 | **Material Design 3** | - | Sistema de design |
-| **JSON** | - | Persistência de dados |
+| **JSON** | - | Persistência de Obras e Funcionários |
 | **Dataclasses** | - | Modelagem de dados |
 
 ### Por que Flet?
@@ -107,7 +110,8 @@ Sistema completo de gerenciamento de obras de construção com **interface moder
 ├── cadastro_insumo/                # 📦 Módulo de Insumos
 │   ├── __init__.py
 │   ├── insumo.py                   # Modelo Insumo
-│   ├── cadastro.py                 # CRUD Insumos + Estoque
+│   ├── cadastro.py                 # CRUD Insumos (interface SQLite)
+│   ├── database.py                 # 🆕 DatabaseInsumos (SQLite + paginação)
 │   ├── main_insumo.py              # CLI standalone
 │   └── __init__.py
 │
@@ -131,11 +135,14 @@ Sistema completo de gerenciamento de obras de construção com **interface moder
 ├── app_flet.py                     # 🚀 APLICATIVO PRINCIPAL (GUI)
 ├── main.py                         # Sistema CLI integrado
 ├── popular_dados.py                # Script para popular banco
+├── importar_csv_sqlite.py          # 🆕 Importa CSV para SQLite
+├── importar_insumos.py             # Importa CSV para JSON (legacy)
 │
 ├── logojpg.PNG                     # Logo da empresa
 │
+├── insumos.csv                     # 📄 4.984 insumos SINAPI
+├── insumos.db                      # 🆕 💾 Banco SQLite de insumos
 ├── obras.json                      # 💾 Dados de obras
-├── insumos.json                    # 💾 Dados de insumos
 ├── funcionarios.json               # 💾 Dados de funcionários
 │
 ├── run.ps1                         # Script PowerShell
@@ -235,6 +242,23 @@ python popular_dados.py
 - ✅ 3 obras (1 finalizada, 2 em andamento)
 - ✅ 5 insumos com estoque variado
 - ✅ 4 funcionários ativos em cargos diferentes
+
+### 📥 Importar Insumos SINAPI (4.984 itens)
+
+O sistema já vem com um banco SQLite populado, mas você pode reimportar:
+
+```powershell
+# Reimporta do CSV para SQLite (sobrescreve banco existente)
+python importar_csv_sqlite.py
+```
+
+**O que é importado:**
+- 📄 Arquivo: `insumos.csv` (4.984 linhas)
+- 🏗️ Classificações: MATERIAL, SERVIÇOS, EQUIPAMENTOS, MÃO DE OBRA
+- 📊 Campos: Código do Insumo, Classificação, Descrição, Unidade
+- 💾 Destino: `insumos.db` (SQLite com índices otimizados)
+
+**Tempo de importação:** ~10 segundos para 4.984 registros
 
 ---
 
@@ -380,15 +404,17 @@ pages/pagina_*.py (Views)
 
 #### 📦 PaginaInsumos
 **Recursos:**
-- DataTable com 8 colunas (ID, Nome, Unidade, Quantidade, Preço Unit., Valor Total, Fornecedor, Ações)
-- **Alertas visuais**: Texto vermelho para estoque < 10
+- **Banco SQLite** com 4.984 insumos do SINAPI
+- **Paginação**: Exibe 50 itens por vez (100 páginas no total)
+- **Barra de busca**: Filtra por código, classificação ou descrição
+- **Indicador de página**: "Página X de Y (total insumos)"
+- **Navegação**: Botões anterior/próxima
+- DataTable com 6 colunas (ID, Código, Classificação, Descrição, Unidade, Ações)
 - **Botões de ação**:
-  - ➕ **Entrada**: Dialog para adicionar estoque (fundo verde)
-  - ➖ **Saída**: Dialog para remover estoque (fundo laranja)
   - ✏️ **Editar**: Atualizar dados do insumo
   - 🗑️ **Excluir**: Confirmação
-- **Banner de aviso**: Lista itens com estoque crítico
-- **Cards de resumo**: Total | Valor em Estoque | Estoque Baixo
+- **Performance otimizada**: Carrega apenas 50 registros por vez
+- **Cards de resumo**: Total de Insumos cadastrados
 
 #### 👷 PaginaFuncionarios
 **Recursos:**
