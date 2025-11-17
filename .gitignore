@@ -1,0 +1,46 @@
+# Ambientes virtuais Python
+.venv/
+venv/
+ENV/
+env/
+
+# Arquivos de dados sensíveis (dados reais dos usuários)
+*.db
+*.json
+!README.json  # Exemplo de exceção se necessário
+
+# Arquivos temporários Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Arquivos temporários do Flet
+.flet/
+
+# Arquivos de backup
+*.bak
+*.backup
+*~
+
+# Arquivos de teste (opcional - remova se quiser versioná-los)
+teste_*.py
+
+# CSV com dados reais (mantenha apenas exemplos/templates)
+# insumos.csv  # Descomente se o CSV tiver dados sensíveis
